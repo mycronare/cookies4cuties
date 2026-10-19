@@ -113,6 +113,7 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
             >
               <option value="Vista Mall Pampanga">Vista Mall Pampanga</option>
               <option value="Cityland 101 Xavierville">Cityland 101 Xavierville (Katipunan)</option>
+              <option value="One Rockwell East">One Rockwell East (Estrella, Makati)</option>
             </select>
           </div>
 

@@ -78,9 +78,10 @@ export default function Checkout({ cart, products, removeFromCart, onProceed, on
         <ul className="list-disc list-inside space-y-1 pl-1">
           <td>Vista Mall Pampanga (City of San Fernando, Pampanga)</td>
           <td>Cityland 101 Xavierville (Katipunan, Quezon City)</td>
+          <td>One Rockwell East Tower (Estrella, Makati City)</td>
         </ul>
         <p className="pt-2 text-slate-500 italic">
-          For orders from Katipunan, the cookies are usually baked and then brought to Metro Manila every Sunday.
+          For orders from Katipunan and Makati, the cookies are usually baked and then brought to Metro Manila every Sunday.
         </p>
         <p className="font-bold text-slate-700">
           You will receive an email a day before your cookies are ready for pickup.
