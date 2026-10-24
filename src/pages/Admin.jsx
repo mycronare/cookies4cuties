@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function Admin({ onBack }) {
@@ -9,6 +9,9 @@ export default function Admin({ onBack }) {
 
   // Simple PIN protection (Change 'cutie123' to your preferred key)
   const ADMIN_PASSKEY = 'cutie123';
+
+  const prettyName = (id) =>
+    id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -95,48 +98,60 @@ export default function Admin({ onBack }) {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
-            <div key={order.id} className="bg-white p-5 rounded-3xl shadow-sm text-xs space-y-3">
-              <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+          {orders.map((order) => {
+            const isCOD = order.payment_method === 'cod';
+            return (
+              <div key={order.id} className="bg-white p-5 rounded-3xl shadow-sm text-xs space-y-3">
+                <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">
+                      {new Date(order.created_at).toLocaleString()}
+                    </span>
+                    <p className="font-bold text-slate-800 text-sm">{order.email}</p>
+                    <p className="text-slate-500">{order.phone}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold text-[#8E5A52] text-base">₱{order.total_price}</span>
+                    <p className="text-[10px] text-slate-500">{order.pickup_location}</p>
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        isCOD ? 'bg-amber-100 text-amber-800' : 'bg-[#BCE3EB] text-slate-800'
+                      }`}
+                    >
+                      {isCOD ? 'COD – collect cash' : 'Paid via QR'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Order Items */}
                 <div>
-                  <span className="text-[10px] text-slate-400 block">
-                    {new Date(order.created_at).toLocaleString()}
-                  </span>
-                  <p className="font-bold text-slate-800 text-sm">{order.email}</p>
-                  <p className="text-slate-500">{order.phone}</p>
+                  <p className="font-bold text-slate-700 mb-1">Items:</p>
+                  <div className="bg-slate-50 p-2.5 rounded-xl space-y-1 text-slate-600">
+                    {Object.entries(order.items || {}).map(([id, qty]) => (
+                      <div key={id} className="flex justify-between">
+                        <span>{prettyName(id)}</span>
+                        <span className="font-bold">x{qty}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-bold text-[#8E5A52] text-base">₱{order.total_price}</span>
-                  <p className="text-[10px] text-slate-500">{order.pickup_location}</p>
-                </div>
-              </div>
 
-              {/* Order Items */}
-              <div>
-                <p className="font-bold text-slate-700 mb-1">Items:</p>
-                <div className="bg-slate-50 p-2.5 rounded-xl space-y-1 text-slate-600">
-                  {Object.entries(order.items || {}).map(([id, qty]) => (
-                    <div key={id} className="flex justify-between">
-                      <span>{id}</span>
-                      <span className="font-bold">x{qty}</span>
-                    </div>
-                  ))}
-                </div>
+                {/* Receipt Image Link (QR orders only) */}
+                {!isCOD && order.proof_url && (
+                  <div className="pt-2 flex justify-end">
+                    <a
+                      href={order.proof_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#8E5A52] text-white px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition inline-block"
+                    >
+                      View Payment Proof ↗
+                    </a>
+                  </div>
+                )}
               </div>
-
-              {/* Receipt Image Link */}
-              <div className="pt-2 flex justify-end">
-                <a
-                  href={order.proof_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#8E5A52] text-white px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition inline-block"
-                >
-                  View Payment Proof ↗
-                </a>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
