@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+
+const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+const PICKUP_LABELS = {
+  pampanga: 'Vista Mall Pampanga',
+  katipunan: 'Cityland 101 Xavierville',
+  rockwell: 'One Rockwell East',
+};
 
 export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
   const [paymentMethod, setPaymentMethod] = useState('qr'); // 'qr' | 'cod'
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [pickup, setPickup] = useState('Vista Mall Pampanga');
+  const [pickup, setPickup] = useState('pampanga');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [paidTotal, setPaidTotal] = useState(0);
 
   const isCOD = paymentMethod === 'cod';
 
@@ -43,37 +51,29 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
     setSubmitting(true);
 
     try {
-      let proofUrl = null;
+      const items = Object.entries(cart).map(([id, qty]) => ({
+        product_id: products[id].dbId,
+        quantity: qty,
+      }));
 
-      if (!isCOD) {
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const fileName = `${Date.now()}_${safeName}`;
-        const { error: uploadError } = await supabase.storage
-          .from('payment-proofs')
-          .upload(fileName, file);
+      const form = new FormData();
+      form.append('email', email);
+      form.append('phone_number', phone);
+      form.append('items', JSON.stringify(items));
+      form.append('total_price', calculateTotal());
+      form.append('pickup_location', pickup);
+      form.append('payment_method', isCOD ? 'cash_on_pickup' : 'online');
+      if (!isCOD) form.append('proof_of_payment', file);
 
-        if (uploadError) throw uploadError;
+      const res = await fetch(`${API_URL}/orders`, { method: 'POST', body: form });
+      const body = await res.json().catch(() => ({}));
 
-        const { data: urlData } = supabase.storage
-          .from('payment-proofs')
-          .getPublicUrl(fileName);
-
-        proofUrl = urlData.publicUrl;
+      if (!res.ok) {
+        const d = body.detail;
+        throw new Error(typeof d === 'string' ? d : 'Please check your details and try again.');
       }
 
-      const { error: insertError } = await supabase.from('orders').insert([
-        {
-          email,
-          phone,
-          pickup_location: pickup,
-          items: cart,
-          total_price: calculateTotal(),
-          payment_method: paymentMethod,
-          proof_url: proofUrl,
-        },
-      ]);
-
-      if (insertError) throw insertError;
+      setPaidTotal(calculateTotal());
 
       if (onSuccess) onSuccess();
       setSubmitted(true);
@@ -95,7 +95,7 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
         <h2 className="font-['Chomage'] text-4xl text-[#8E5A52] mb-3">Order Submitted!</h2>
         <p className="text-xs text-slate-600 leading-relaxed mb-6">
           {isCOD
-            ? `We'll send a confirmation email soon. Please prepare ₱${calculateTotal().toFixed(2)} in cash when you claim your order at ${pickup}.`
+            ? `We'll send a confirmation email soon. Please prepare ₱${paidTotal.toFixed(2)} in cash when you claim your order at ${PICKUP_LABELS[pickup]}.`
             : "We'll review your payment proof and send a confirmation email soon."}
         </p>
         <button
@@ -189,9 +189,9 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
               onChange={(e) => setPickup(e.target.value)}
               className={inputClass}
             >
-              <option value="Vista Mall Pampanga">Vista Mall Pampanga</option>
-              <option value="Cityland 101 Xavierville">Cityland 101 Xavierville (Katipunan)</option>
-              <option value="One Rockwell East">One Rockwell East (Estrella, Makati)</option>
+              <option value="pampanga">{PICKUP_LABELS.pampanga}</option>
+              <option value="katipunan">{PICKUP_LABELS.katipunan}</option>
+              <option value="rockwell">{PICKUP_LABELS.rockwell}</option>
             </select>
           </div>
 

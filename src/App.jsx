@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import Home from './pages/Home';
 import Checkout from './pages/Checkout';
 import Payment from './pages/Payment';
+import Admin from './pages/Admin';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [cart, setCart] = useState({});
 
   const products = {
-    box_of_six: { id: 'box_of_six', name: 'BOX OF SIX', price: 250 },
-    single_palm: { id: 'single_palm', name: 'SINGLE PALM-SIZED', price: 80 },
+    box_of_six: { id: 'box_of_six', dbId: 6, name: 'BOX OF SIX', price: 250 },
+    single_palm: { id: 'single_palm', dbId: 7, name: 'SINGLE PALM-SIZED', price: 80 },
   };
 
   const addToCart = (productId) => {
@@ -36,6 +37,10 @@ export default function App() {
   };
 
   const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
+
+  if (window.location.pathname.startsWith('/admin')){
+    return <Admin />;
+  }
 
   return (
     <div className="min-h-screen bg-[#BCE3EB] flex justify-center p-4">
