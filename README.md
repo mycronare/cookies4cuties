@@ -31,4 +31,4 @@ The site deploys to Vercel from this repo. Set the environment variables above i
 - Instagram: [@cookiesforcuties_](https://instagram.com/cookiesforcuties_)
 - Branding: [Cookies for Cuties]([https://www.behance.net/your-name](https://www.behance.net/gallery/258208361/Cookies-for-Cuties))
 
-Designed and built by Audrey 🤍
+Designed and built by Audrey 🤍 done with my better half, [Elijah Galang](https://github.com/jijahh/cookies4cuties_server), who made the backend server handling email confirmations and database management.
