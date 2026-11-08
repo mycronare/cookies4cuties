@@ -6,9 +6,9 @@ const PROOF_BUCKET = import.meta.env.VITE_PROOF_BUCKET || 'payment-proofs';
 const PAGE_SIZE = 20;
 const STATUSES = ['pending', 'confirmed', 'ready', 'completed', 'cancelled'];
 
-const PRODUCT_NAMES = { 1: 'Box of Six', 2: 'Single Palm-Sized' }; // match your products table ids
+const PRODUCT_NAMES = { 6: 'Box of Six', 7: 'Single Palm-Sized' }; 
 const LOCATIONS = { pampanga: 'Vista Mall Pampanga', katipunan: 'Cityland 101 Xavierville', rockwell: 'One Rockwell East' };
-const METHODS = { online: 'Online (QR)', cash_on_pickup: 'Cash on pickup', cash_on_delivery: 'Cash on delivery' };
+const METHODS = { qr: 'Online (QR)', cash_on_pickup: 'Cash on pickup' };
 
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -53,7 +53,7 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [offset, setOffset] = useState(0);
   const [filters, setFilters] = useState({
-    email: '', order_status: '', payment_method: '', payment_verified: '', pickup_location: '', sort: 'created_at:desc',
+    email: '', order_status: '', payment_method: '', pickup_location: '', sort: 'created_at:desc',
   });
 
   const logout = (msg = '') => {
@@ -88,7 +88,7 @@ export default function Admin() {
     const [sort_by, sort_order] = filters.sort.split(':');
     p.set('sort_by', sort_by);
     p.set('sort_order', sort_order);
-    ['email', 'order_status', 'payment_method', 'payment_verified', 'pickup_location'].forEach((k) => {
+    ['email', 'order_status', 'payment_method', 'pickup_location'].forEach((k) => {
       if (filters[k].trim()) p.set(k, filters[k].trim());
     });
     try {
@@ -157,7 +157,6 @@ export default function Admin() {
   }
 
   const pending = orders.filter((o) => o.order_status === 'pending').length;
-  const unpaid = orders.filter((o) => !o.payment_verified).length;
   const total = orders.reduce((s, o) => s + Number(o.total_price || 0), 0);
 
   /* ---------- Dashboard ---------- */
@@ -180,7 +179,6 @@ export default function Admin() {
           {[
             ['Orders on this page', orders.length],
             ['Pending', pending],
-            ['Awaiting payment check', unpaid],
             ['Total on this page', peso(total)],
           ].map(([label, value]) => (
             <div key={label} className="bg-white rounded-3xl p-4 shadow-sm text-center">
@@ -204,13 +202,6 @@ export default function Admin() {
             <select value={filters.payment_method} onChange={(e) => setFilter('payment_method', e.target.value)} className={inputClass}>
               <option value="">All</option>
               {Object.entries(METHODS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-          </Field>
-          <Field label="Payment check">
-            <select value={filters.payment_verified} onChange={(e) => setFilter('payment_verified', e.target.value)} className={inputClass}>
-              <option value="">All</option>
-              <option value="true">Verified</option>
-              <option value="false">Not verified</option>
             </select>
           </Field>
           <Field label="Pickup">
