@@ -224,20 +224,6 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
           </div>
 
           <div>
-            <label htmlFor="email" className="block font-bold text-slate-700 mb-1">Email Address</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className={inputClass}
-              placeholder="cutie@example.com"
-            />
-          </div>
-
-          <div>
             <label htmlFor="phone" className="block font-bold text-slate-700 mb-1">Mobile Number</label>
             <input
               id="phone"
