@@ -10,6 +10,7 @@ const PICKUP_LABELS = {
 
 export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
   const [paymentMethod, setPaymentMethod] = useState('qr'); // 'qr' | 'cod'
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [pickup, setPickup] = useState('pampanga');
@@ -28,7 +29,6 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
     }, 0);
   };
 
-  // Thumbnail preview of the chosen receipt
   useEffect(() => {
     if (!file) {
       setPreview(null);
@@ -57,6 +57,7 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
       }));
 
       const form = new FormData();
+      form.append('customer_name', name);
       form.append('email', email);
       form.append('phone_number', phone);
       form.append('items', JSON.stringify(items));
@@ -193,6 +194,33 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
               <option value="katipunan">{PICKUP_LABELS.katipunan}</option>
               <option value="rockwell">{PICKUP_LABELS.rockwell}</option>
             </select>
+          </div>
+          <div>
+            <label htmlFor="name" className="block font-bold text-slate-700 mb-1">Nickname</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+              className={inputClass}
+              placeholder="Cookie Monster"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block font-bold text-slate-700 mb-1">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              className={inputClass}
+              placeholder="cutie@example.com"
+            />
           </div>
 
           <div>
