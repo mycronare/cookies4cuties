@@ -96,7 +96,7 @@ export default function Payment({ cart, products, onHome, onSuccess, onBack }) {
         <h2 className="font-['Chomage'] text-4xl text-[#8E5A52] mb-3">Order Submitted!</h2>
         <p className="text-xs text-slate-600 leading-relaxed mb-6">
           {isCOD
-            ? `We'll send a confirmation email soon. Please prepare ₱${paidTotal.toFixed(2)} in cash when you claim your order at ${PICKUP_LABELS[pickup]}.`
+            ? `Please reply with "Yes" to the confirmation email we will send shortly! Prepare ₱${paidTotal.toFixed(2)} in cash when you claim your order at ${PICKUP_LABELS[pickup]}.`
             : "We'll review your payment proof and send a confirmation email soon."}
         </p>
         <button
